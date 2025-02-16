@@ -11,10 +11,10 @@ on:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    # Correct permissions syntax (no "workflows" key)
     permissions:
-      actions: write
-      contents: read
-      workflows: write
+      actions: write   # To trigger workflows
+      contents: read   # To clone repos
     steps:
       - name: Checkout ScanCore
         uses: actions/checkout@v3
