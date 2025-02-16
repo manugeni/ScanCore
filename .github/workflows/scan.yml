@@ -1,0 +1,33 @@
+name: ScanCore Scanner
+on:
+  repository_dispatch:
+    types: [scan-trigger]
+  workflow_dispatch:
+    inputs:
+      repo_url:
+        description: "Repo URL to scan"
+        required: true
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ScanCore
+        uses: actions/checkout@v3
+
+      - name: Clone Target Repository
+        run: git clone ${{ github.event.inputs.repo_url || inputs.repo_url }} target-repo
+
+      - name: Run Security Scans
+        run: |
+          pip install bandit trufflehog
+          bandit -r target-repo -f json > bandit-results.json
+          trufflehog filesystem target-repo > trufflehog-results.txt
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: scan-results
+          path: |
+            bandit-results.json
+            trufflehog-results.txt
